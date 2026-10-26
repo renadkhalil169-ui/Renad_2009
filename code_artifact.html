@@ -1,0 +1,863 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إنجاز - مؤقت المذاكرة وتتبع الساعات</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#ecfdf5',
+                            100: '#d1fae5',
+                            500: '#10b981',
+                            600: '#059669',
+                            700: '#047857',
+                        },
+                        amberGlow: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts: Cairo -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        * {
+            font-family: 'Cairo', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+        /* Custom smooth scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+        }
+        ::-webkit-scrollbar-thumb {
+            background: rgba(100, 116, 139, 0.3);
+            border-radius: 9999px;
+        }
+        /* Fullscreen styles */
+        :fullscreen {
+            background-color: #0f172a;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen transition-colors duration-300 flex flex-col selection:bg-emerald-500 selection:text-white">
+
+    <!-- شريط علوي (Header) -->
+    <header class="w-full border-b border-slate-800/80 bg-slate-900/60 backdrop-blur-md sticky top-0 z-40">
+        <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-400 flex items-center justify-center text-white shadow-lg shadow-emerald-500/20">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
+                        إنجـاز
+                        <span class="text-xs px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 font-semibold border border-emerald-500/20">تركيز</span>
+                    </h1>
+                    <p class="text-xs text-slate-400">مؤقت المذاكرة وتتبع الإنجاز اليومي</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2">
+                <!-- زر وضع ملء الشاشة -->
+                <button id="fullscreenBtn" title="شاشة كاملة للتركيز" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700/60 flex items-center justify-center">
+                    <svg id="fullscreenIcon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-5h-4m4 0v4m0 0l-5-5M4 16v4m0 0h4m-4 0l5-5m11 5l-5-5m5 5v-4m0 4h-4"></path>
+                    </svg>
+                </button>
+                <!-- زر تفعيل الإشعارات -->
+                <button id="notifyBtn" title="تفعيل تنبيهات المتصفح" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-slate-300 transition-all border border-slate-700/60 flex items-center justify-center">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path>
+                    </svg>
+                </button>
+                <!-- تبديل المظهر النهاري / الليلي -->
+                <button id="themeToggleBtn" title="تغيير المظهر" class="p-2.5 rounded-xl bg-slate-800/80 hover:bg-slate-700 text-amber-400 transition-all border border-slate-700/60 flex items-center justify-center">
+                    <svg id="themeIconSun" class="w-5 h-5 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                    </svg>
+                    <svg id="themeIconMoon" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.03 9.03 0 008.354-5.646z"></path>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- المحتوى الرئيسي -->
+    <main class="flex-1 max-w-6xl w-full mx-auto px-4 py-8 flex flex-col lg:flex-row gap-8 items-start justify-center">
+
+        <!-- القسم الأيمن: المؤقت والتحكم -->
+        <section class="w-full lg:w-7/12 flex flex-col items-center">
+            
+            <!-- شريط الأنماط السريعة -->
+            <div class="bg-slate-900/90 border border-slate-800 p-1.5 rounded-2xl flex flex-wrap gap-1.5 justify-center mb-6 shadow-md w-full max-w-md">
+                <button data-work="50" data-break="10" class="mode-btn flex-1 py-2 px-3 rounded-xl text-sm font-semibold transition-all duration-200 bg-emerald-600 text-white shadow-sm">
+                    ٥٠ / ١٠ (مفضل)
+                </button>
+                <button data-work="25" data-break="5" class="mode-btn flex-1 py-2 px-3 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:bg-slate-800">
+                    بومودورو ٢٥ / ٥
+                </button>
+                <button data-work="90" data-break="15" class="mode-btn flex-1 py-2 px-3 rounded-xl text-sm font-semibold transition-all duration-200 text-slate-300 hover:bg-slate-800">
+                    جلسة عميقة ٩٠ / ١٥
+                </button>
+                <button id="customModalOpenBtn" class="py-2 px-3 rounded-xl text-sm font-semibold text-slate-400 hover:text-white hover:bg-slate-800 flex items-center gap-1 transition-all">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
+                    تخصيص
+                </button>
+            </div>
+
+            <!-- حقل المادة / المهمة الحالية -->
+            <div class="w-full max-w-md mb-6">
+                <div class="relative">
+                    <input type="text" id="taskInput" placeholder="ما الذي تركز عليه الآن؟ (مثال: رياضيات، فيزياء، برمجة...)" 
+                           class="w-full bg-slate-900/80 border border-slate-800 rounded-2xl px-4 py-3 pr-11 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50 focus:border-emerald-500 transition-all shadow-inner">
+                    <div class="absolute right-3.5 top-3.5 text-slate-500">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- دائرة العداد التنازلي التفاعلية -->
+            <div class="relative flex items-center justify-center my-2">
+                <div class="relative w-72 h-72 sm:w-80 sm:h-80">
+                    <svg class="w-full h-full -rotate-90 transform" viewBox="0 0 240 240">
+                        <!-- مسار الخلفية الدائري -->
+                        <circle cx="120" cy="120" r="102" stroke="currentColor" stroke-width="10" fill="transparent" class="text-slate-800/80" />
+                        <!-- حلقة التقدم الملونة -->
+                        <circle id="progressRing" cx="120" cy="120" r="102" stroke="currentColor" stroke-width="10" stroke-linecap="round" fill="transparent" 
+                                stroke-dasharray="640.88" stroke-dashoffset="0" class="text-emerald-500 transition-[stroke-dashoffset] duration-700 ease-linear shadow-lg" />
+                    </svg>
+
+                    <!-- محتوى داخل المؤقت -->
+                    <div class="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                        <span id="stateBadge" class="text-xs uppercase tracking-wider font-bold py-1 px-3 rounded-full mb-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                            وقت المذاكرة
+                        </span>
+                        <div id="timeDisplay" class="text-6xl sm:text-7xl font-extrabold tracking-tight font-mono text-white select-none">
+                            50:00
+                        </div>
+                        <p id="currentTaskLabel" class="text-xs text-slate-400 mt-2 truncate max-w-[200px]">
+                            مستعد للبدء؟
+                        </p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- أزرار التحكم بالمؤقت -->
+            <div class="flex items-center gap-4 mt-8">
+                <!-- زر بدء / إيقاف مؤقت -->
+                <button id="toggleBtn" class="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-500 active:scale-95 text-white font-bold px-8 py-3.5 rounded-2xl shadow-lg shadow-emerald-600/30 transition-all text-base min-w-[140px]">
+                    <svg id="playIcon" class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20"><path d="M4 4l12 6-12 6z"/></svg>
+                    <svg id="pauseIcon" class="w-6 h-6 hidden" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v4a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+                    <span id="btnLabel">ابدأ المذاكرة</span>
+                </button>
+
+                <!-- زر إعادة التعيين -->
+                <button id="resetBtn" title="إعادة الضبط" class="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/60 shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                    </svg>
+                </button>
+
+                <!-- زر تخطي الفترة الحالية -->
+                <button id="skipBtn" title="تخطي للجلسة التالية" class="p-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 transition-all border border-slate-700/60 shadow-md">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- عبارة تحفيزية متغيرة -->
+            <div class="mt-8 text-center max-w-md p-4 rounded-2xl bg-slate-900/40 border border-slate-800/60">
+                <p id="motivationalQuote" class="text-sm text-slate-300 font-medium italic">
+                    "النجاح هو مجموع جهود صغيرة تتكرر يوماً بعد يوم."
+                </p>
+            </div>
+        </section>
+
+        <!-- القسم الأيسر: الإحصائيات، سجل الأيام، والهدف اليومي -->
+        <section class="w-full lg:w-5/12 flex flex-col gap-6">
+
+            <!-- بطاقة إحصائيات اليوم والهدف -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl relative overflow-hidden">
+                <div class="flex items-center justify-between mb-4">
+                    <div>
+                        <h2 class="text-lg font-bold text-white flex items-center gap-2">
+                            <span>إنجاز اليوم</span>
+                            <span class="text-xs font-normal text-slate-400" id="currentDateString"></span>
+                        </h2>
+                        <p class="text-xs text-slate-400">إجمالي وقت التركيز والمذاكرة</p>
+                    </div>
+
+                    <!-- شارة أيام الالتزام (Streak) -->
+                    <div class="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-2xl">
+                        <span class="text-base">🔥</span>
+                        <div class="text-right">
+                            <span id="streakCount" class="text-sm font-bold text-amber-400">0</span>
+                            <span class="text-[10px] text-slate-400 block -mt-1">أيام التزام</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- عداد الساعات والدقائق الضخم -->
+                <div class="flex items-baseline gap-3 my-3">
+                    <span id="todayHours" class="text-5xl font-extrabold text-white tracking-tight">0</span>
+                    <span class="text-slate-400 text-sm font-medium">ساعة</span>
+                    <span id="todayMinutes" class="text-3xl font-bold text-emerald-400">0</span>
+                    <span class="text-slate-400 text-sm font-medium">دقيقة</span>
+                </div>
+
+                <!-- شريط الهدف اليومي -->
+                <div class="mt-4 pt-4 border-t border-slate-800/80">
+                    <div class="flex justify-between items-center text-xs mb-2">
+                        <span class="text-slate-300 font-medium">نسبة إنجاز الهدف اليومي</span>
+                        <div class="flex items-center gap-1">
+                            <span id="goalPercent" class="text-emerald-400 font-bold">0%</span>
+                            <span class="text-slate-500">من</span>
+                            <button id="editGoalBtn" title="تعديل الهدف" class="text-slate-300 font-bold underline hover:text-emerald-400 flex items-center gap-1">
+                                <span id="goalHoursText">4</span> ساعات
+                                <svg class="w-3 h-3 inline" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/></svg>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="w-full bg-slate-800 rounded-full h-3 overflow-hidden p-0.5 border border-slate-700/50">
+                        <div id="goalProgressBar" class="bg-gradient-to-r from-teal-500 to-emerald-500 h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- بطاقة الرسم البياني لآخر 7 أيام -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path>
+                        </svg>
+                        سجل آخر 7 أيام
+                    </h3>
+                    <span class="text-xs text-slate-400">بالساعات</span>
+                </div>
+
+                <!-- رسم الأعمدة البياني (بسيط وتفاعلي) -->
+                <div class="flex items-end justify-between h-44 pt-6 pb-2 px-2 gap-2 border-b border-slate-800" id="weeklyChartContainer">
+                    <!-- سيتم ملؤه ديناميكياً بالجافاسكربت -->
+                </div>
+
+                <!-- إجمالي الأسبوع -->
+                <div class="flex justify-between items-center mt-4 text-xs text-slate-400">
+                    <span>إجمالي مذاكرة الأسبوع:</span>
+                    <span id="weeklyTotalText" class="font-bold text-slate-200 text-sm">0 ساعة</span>
+                </div>
+            </div>
+
+            <!-- بطاقة جلسات اليوم المسجلة -->
+            <div class="bg-slate-900/90 border border-slate-800 rounded-3xl p-6 shadow-xl flex-1 flex flex-col">
+                <div class="flex items-center justify-between mb-3">
+                    <h3 class="text-base font-bold text-white flex items-center gap-2">
+                        <svg class="w-5 h-5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"></path>
+                        </svg>
+                        جلسات اليوم المنجزة
+                    </h3>
+                    <button id="clearTodayDataBtn" class="text-xs text-rose-400 hover:text-rose-300 transition-colors">
+                        تصفير اليوم
+                    </button>
+                </div>
+                
+                <div id="sessionHistoryList" class="flex flex-col gap-2 max-h-48 overflow-y-auto pr-1">
+                    <!-- سيتم ملؤه بالجلسات المكتملة -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- نافذة منبثقة (Modal) لتخصيص الوقت والهدف اليومي -->
+    <div id="customModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-3xl p-6 shadow-2xl relative">
+            <h3 class="text-lg font-bold text-white mb-4">تخصيص أوقات المؤقت</h3>
+            
+            <form id="customTimeForm" class="flex flex-col gap-4">
+                <div>
+                    <label class="block text-xs text-slate-300 font-semibold mb-1">وقت المذاكرة (بالدقائق):</label>
+                    <input type="number" id="customWorkInput" min="1" max="180" value="50" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 font-semibold mb-1">وقت الراحة (بالدقائق):</label>
+                    <input type="number" id="customBreakInput" min="1" max="60" value="10" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs text-slate-300 font-semibold mb-1">الهدف اليومي (بالساعات):</label>
+                    <input type="number" id="customGoalInput" min="1" max="18" value="4" class="w-full bg-slate-800 border border-slate-700 rounded-xl px-3 py-2.5 text-white focus:outline-none focus:border-emerald-500">
+                </div>
+
+                <div class="flex items-center gap-2 mt-2">
+                    <button type="submit" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 rounded-xl transition-all">
+                        حفظ وتطبيق
+                    </button>
+                    <button type="button" id="closeModalBtn" class="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl transition-all">
+                        إلغاء
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- كود الجافاسكربت لإدارة منطق المؤقت والصوت والتخزين -->
+    <script>
+        // --- الثوابت والحالة (State) ---
+        const CIRCLE_CIRCUMFERENCE = 2 * Math.PI * 102; // تقريباً 640.88
+        
+        let timerState = {
+            mode: 'work', // 'work' أو 'break'
+            workMinutes: 50,
+            breakMinutes: 10,
+            timeLeft: 50 * 60, // بالثواني
+            totalDuration: 50 * 60,
+            isRunning: false,
+            timerInterval: null,
+            dailyGoalHours: 4,
+            currentTask: ''
+        };
+
+        const motivationalQuotes = [
+            "النجاح هو مجموع جهود صغيرة تتكرر يوماً بعد يوم.",
+            "لا تنتظر الفرصة المثالية، بل اصنعها الآن بتركيزك.",
+            "كل دقيقة تبذلها في الدراسة تبني مستقبلك الأجمل.",
+            "التركيز هو سر الإنجاز العظيم؛ استمر!",
+            "خطوة بخطوة تصنع الفارق.. مذاكرة ممتعة ومثمرة!"
+        ];
+
+        // --- Web Audio API للتنبيه الصوتي الهادئ ---
+        function playChime(isBreakStart = false) {
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                if (!AudioContext) return;
+                const ctx = new AudioContext();
+
+                const now = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                if (isBreakStart) {
+                    // نغمة استراحة مبهجة وهادئة (ترددين متتاليين)
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(523.25, now); // C5
+                    osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.3); // E5
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+                    osc.start(now);
+                    osc.stop(now + 1.2);
+                } else {
+                    // نغمة انتهاء الاستراحة والعودة للعمل
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(440, now); // A4
+                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.25); // A5
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.exponentialRampToValueAtTime(0.001, now + 1.5);
+                    osc.start(now);
+                    osc.stop(now + 1.5);
+                }
+            } catch (e) {
+                console.warn('Audio play restricted or unsupported', e);
+            }
+        }
+
+        // --- التخزين المحلي (LocalStorage) ---
+        function getTodayDateKey() {
+            const d = new Date();
+            const year = d.getFullYear();
+            const month = String(d.getMonth() + 1).padStart(2, '0');
+            const day = String(d.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function loadAppData() {
+            try {
+                const savedGoal = localStorage.getItem('injaz_daily_goal');
+                if (savedGoal) timerState.dailyGoalHours = parseFloat(savedGoal) || 4;
+
+                const savedWork = localStorage.getItem('injaz_work_duration');
+                const savedBreak = localStorage.getItem('injaz_break_duration');
+                if (savedWork) timerState.workMinutes = parseInt(savedWork, 10);
+                if (savedBreak) timerState.breakMinutes = parseInt(savedBreak, 10);
+
+                timerState.timeLeft = timerState.workMinutes * 60;
+                timerState.totalDuration = timerState.timeLeft;
+            } catch (e) {
+                console.error('Error loading config', e);
+            }
+        }
+
+        function getStudyHistory() {
+            try {
+                const data = localStorage.getItem('injaz_study_history');
+                return data ? JSON.parse(data) : {};
+            } catch (e) {
+                return {};
+            }
+        }
+
+        function saveStudyMinutes(minutes, subject) {
+            const history = getStudyHistory();
+            const todayKey = getTodayDateKey();
+            if (!history[todayKey]) {
+                history[todayKey] = {
+                    totalMinutes: 0,
+                    sessions: []
+                };
+            }
+            history[todayKey].totalMinutes += minutes;
+            history[todayKey].sessions.push({
+                time: new Date().toLocaleTimeString('ar-EG', { hour: '2-digit', minute: '2-digit' }),
+                duration: minutes,
+                subject: subject || 'مذاكرة عامة'
+            });
+
+            localStorage.setItem('injaz_study_history', JSON.stringify(history));
+            updateStatsUI();
+        }
+
+        // --- واجهة المستخدم والتحديثات ---
+        const timeDisplay = document.getElementById('timeDisplay');
+        const progressRing = document.getElementById('progressRing');
+        const stateBadge = document.getElementById('stateBadge');
+        const toggleBtn = document.getElementById('toggleBtn');
+        const btnLabel = document.getElementById('btnLabel');
+        const playIcon = document.getElementById('playIcon');
+        const pauseIcon = document.getElementById('pauseIcon');
+        const taskInput = document.getElementById('taskInput');
+        const currentTaskLabel = document.getElementById('currentTaskLabel');
+
+        function formatTime(seconds) {
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }
+
+        function updateTimerDisplay() {
+            timeDisplay.textContent = formatTime(timerState.timeLeft);
+            document.title = `${formatTime(timerState.timeLeft)} - ${timerState.mode === 'work' ? 'مذاكرة' : 'استراحة'} | إنجاز`;
+
+            // تحديث حلقة التقدم SVG
+            const progress = timerState.timeLeft / timerState.totalDuration;
+            const offset = CIRCLE_CIRCUMFERENCE * (1 - progress);
+            progressRing.style.strokeDashoffset = offset;
+
+            // تحديث ألوان الحالة
+            if (timerState.mode === 'work') {
+                progressRing.classList.remove('text-amber-500');
+                progressRing.classList.add('text-emerald-500');
+                stateBadge.className = "text-xs uppercase tracking-wider font-bold py-1 px-3 rounded-full mb-2 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20";
+                stateBadge.textContent = "جلسة تركيز ومذاكرة";
+            } else {
+                progressRing.classList.remove('text-emerald-500');
+                progressRing.classList.add('text-amber-500');
+                stateBadge.className = "text-xs uppercase tracking-wider font-bold py-1 px-3 rounded-full mb-2 bg-amber-500/10 text-amber-400 border border-amber-500/20";
+                stateBadge.textContent = "استراحة قصيرة لنقاهة عقلك ☕";
+            }
+        }
+
+        function toggleTimer() {
+            if (timerState.isRunning) {
+                // إيقاف مؤقت
+                clearInterval(timerState.timerInterval);
+                timerState.isRunning = false;
+                playIcon.classList.remove('hidden');
+                pauseIcon.classList.add('hidden');
+                btnLabel.textContent = "متابعة المذاكرة";
+            } else {
+                // بدء
+                timerState.isRunning = true;
+                playIcon.classList.add('hidden');
+                pauseIcon.classList.remove('hidden');
+                btnLabel.textContent = "إيقاف مؤقت";
+
+                timerState.timerInterval = setInterval(() => {
+                    if (timerState.timeLeft > 0) {
+                        timerState.timeLeft--;
+                        updateTimerDisplay();
+                    } else {
+                        onSessionComplete();
+                    }
+                }, 1000);
+            }
+        }
+
+        function resetTimer() {
+            clearInterval(timerState.timerInterval);
+            timerState.isRunning = false;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            btnLabel.textContent = timerState.mode === 'work' ? "ابدأ المذاكرة" : "ابدأ الاستراحة";
+
+            timerState.timeLeft = (timerState.mode === 'work' ? timerState.workMinutes : timerState.breakMinutes) * 60;
+            timerState.totalDuration = timerState.timeLeft;
+            updateTimerDisplay();
+        }
+
+        function onSessionComplete() {
+            clearInterval(timerState.timerInterval);
+            timerState.isRunning = false;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+
+            if (timerState.mode === 'work') {
+                // حفظ دقائق المذاكرة في السجل
+                saveStudyMinutes(timerState.workMinutes, taskInput.value.trim());
+                playChime(true);
+                sendNotification("عمل رائع!", `أنهيت ${timerState.workMinutes} دقيقة من المذاكرة المركزة. حان وقت استراحة مستحقة!`);
+
+                // التبديل إلى الاستراحة
+                timerState.mode = 'break';
+                timerState.timeLeft = timerState.breakMinutes * 60;
+                timerState.totalDuration = timerState.timeLeft;
+                btnLabel.textContent = "ابدأ الاستراحة";
+                rotateQuote();
+            } else {
+                // انتهاء الاستراحة، العودة للمذاكرة
+                playChime(false);
+                sendNotification("انتهت الاستراحة!", "مستعد لجولة تركيز وإنجاز جديدة؟");
+
+                timerState.mode = 'work';
+                timerState.timeLeft = timerState.workMinutes * 60;
+                timerState.totalDuration = timerState.timeLeft;
+                btnLabel.textContent = "ابدأ المذاكرة";
+            }
+
+            updateTimerDisplay();
+        }
+
+        function skipSession() {
+            clearInterval(timerState.timerInterval);
+            timerState.isRunning = false;
+            if (timerState.mode === 'work') {
+                timerState.mode = 'break';
+                timerState.timeLeft = timerState.breakMinutes * 60;
+                btnLabel.textContent = "ابدأ الاستراحة";
+            } else {
+                timerState.mode = 'work';
+                timerState.timeLeft = timerState.workMinutes * 60;
+                btnLabel.textContent = "ابدأ المذاكرة";
+            }
+            timerState.totalDuration = timerState.timeLeft;
+            playIcon.classList.remove('hidden');
+            pauseIcon.classList.add('hidden');
+            updateTimerDisplay();
+        }
+
+        // --- إشعارات المتصفح ---
+        function requestNotificationPermission() {
+            if ("Notification" in window) {
+                Notification.requestPermission().then(permission => {
+                    if (permission === "granted") {
+                        sendNotification("إنجاز", "تم تفعيل التنبيهات بنجاح!");
+                    }
+                });
+            }
+        }
+
+        function sendNotification(title, body) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                new Notification(title, {
+                    body: body,
+                    icon: "https://placehold.co/128x128/10b981/ffffff?text=%D8%A5%D9%86%D8%AC%D8%A7%D8%B2"
+                });
+            }
+        }
+
+        // --- تحديث الإحصائيات والرسم البياني ---
+        function updateStatsUI() {
+            const history = getStudyHistory();
+            const todayKey = getTodayDateKey();
+            const todayData = history[todayKey] || { totalMinutes: 0, sessions: [] };
+
+            const totalMins = todayData.totalMinutes;
+            const hours = Math.floor(totalMins / 60);
+            const mins = totalMins % 60;
+
+            document.getElementById('todayHours').textContent = hours;
+            document.getElementById('todayMinutes').textContent = mins;
+
+            // نسبة إنجاز الهدف
+            const goalMinutes = timerState.dailyGoalHours * 60;
+            const percent = Math.min(100, Math.round((totalMins / goalMinutes) * 100));
+            document.getElementById('goalPercent').textContent = `${percent}%`;
+            document.getElementById('goalProgressBar').style.width = `${percent}%`;
+            document.getElementById('goalHoursText').textContent = timerState.dailyGoalHours;
+
+            // حساب الـ Streak (الأيام المتتالية)
+            calculateStreak(history);
+
+            // بناء رسم آخر 7 أيام
+            renderWeeklyChart(history);
+
+            // تحديث قائمة جلسات اليوم
+            renderTodaySessions(todayData.sessions);
+        }
+
+        function calculateStreak(history) {
+            let streak = 0;
+            let current = new Date();
+            
+            // تحقق إذا ذاكر اليوم أو الأمس
+            while (true) {
+                const year = current.getFullYear();
+                const month = String(current.getMonth() + 1).padStart(2, '0');
+                const day = String(current.getDate()).padStart(2, '0');
+                const key = `${year}-${month}-${day}`;
+
+                if (history[key] && history[key].totalMinutes > 0) {
+                    streak++;
+                    current.setDate(current.getDate() - 1);
+                } else {
+                    // إذا كان اليوم الحالي ولم يذاكر بعد، تحقق من الأمس
+                    if (streak === 0) {
+                        const yesterday = new Date();
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        const yYear = yesterday.getFullYear();
+                        const yMonth = String(yesterday.getMonth() + 1).padStart(2, '0');
+                        const yDay = String(yesterday.getDate()).padStart(2, '0');
+                        const yKey = `${yYear}-${yMonth}-${yDay}`;
+                        if (history[yKey] && history[yKey].totalMinutes > 0) {
+                            streak++;
+                            current.setDate(current.getDate() - 2);
+                            continue;
+                        }
+                    }
+                    break;
+                }
+            }
+            document.getElementById('streakCount').textContent = streak;
+        }
+
+        function renderWeeklyChart(history) {
+            const container = document.getElementById('weeklyChartContainer');
+            container.innerHTML = '';
+
+            const dayNames = ['أحد', 'إثنين', 'ثلاثاء', 'أربعاء', 'خميس', 'جمعة', 'سبت'];
+            let weeklyTotalMinutes = 0;
+            const daysData = [];
+
+            for (let i = 6; i >= 0; i--) {
+                const d = new Date();
+                d.setDate(d.getDate() - i);
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                const key = `${year}-${month}-${day}`;
+
+                const totalM = history[key] ? history[key].totalMinutes : 0;
+                weeklyTotalMinutes += totalM;
+                daysData.push({
+                    name: dayNames[d.getDay()],
+                    minutes: totalM,
+                    isToday: i === 0
+                });
+            }
+
+            const maxMinutes = Math.max(...daysData.map(d => d.minutes), timerState.dailyGoalHours * 60, 60);
+
+            daysData.forEach(d => {
+                const heightPercent = Math.max(8, Math.round((d.minutes / maxMinutes) * 100));
+                const hoursVal = (d.minutes / 60).toFixed(1);
+
+                const col = document.createElement('div');
+                col.className = 'flex-1 flex flex-col items-center gap-1.5 h-full justify-end group';
+                col.innerHTML = `
+                    <div class="text-[11px] text-slate-400 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap mb-0.5">
+                        ${hoursVal} س
+                    </div>
+                    <div class="w-full max-w-[32px] rounded-xl transition-all duration-300 ${
+                        d.isToday ? 'bg-emerald-500 shadow-md shadow-emerald-500/30' : 'bg-slate-800 hover:bg-slate-700'
+                    }" style="height: ${heightPercent}%;"></div>
+                    <span class="text-xs ${d.isToday ? 'text-emerald-400 font-bold' : 'text-slate-400'}">${d.name}</span>
+                `;
+                container.appendChild(col);
+            });
+
+            document.getElementById('weeklyTotalText').textContent = `${(weeklyTotalMinutes / 60).toFixed(1)} ساعة`;
+        }
+
+        function renderTodaySessions(sessions) {
+            const list = document.getElementById('sessionHistoryList');
+            list.innerHTML = '';
+
+            if (!sessions || sessions.length === 0) {
+                list.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">لا توجد جلسات مكتملة اليوم بعد. ابدأ جلستك الأولى! 🚀</div>`;
+                return;
+            }
+
+            // عرض الأحدث أولاً
+            [...sessions].reverse().forEach(s => {
+                const item = document.createElement('div');
+                item.className = "flex items-center justify-between p-2.5 rounded-xl bg-slate-800/50 border border-slate-800 text-xs";
+                item.innerHTML = `
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                        <span class="font-semibold text-slate-200">${s.subject || 'مذاكرة'}</span>
+                    </div>
+                    <div class="flex items-center gap-3 text-slate-400">
+                        <span class="font-mono text-emerald-400 font-bold">${s.duration} د</span>
+                        <span class="text-[11px]">${s.time}</span>
+                    </div>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function rotateQuote() {
+            const q = motivationalQuotes[Math.floor(Math.random() * motivationalQuotes.length)];
+            document.getElementById('motivationalQuote').textContent = `"${q}"`;
+        }
+
+        // --- ربط الأحداث (Event Listeners) ---
+        document.addEventListener('DOMContentLoaded', () => {
+            loadAppData();
+            updateTimerDisplay();
+            updateStatsUI();
+
+            // عرض تاريخ اليوم
+            const todayOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('currentDateString').textContent = new Date().toLocaleDateString('ar-EG', todayOptions);
+
+            // أزرار التحكم
+            toggleBtn.addEventListener('click', toggleTimer);
+            document.getElementById('resetBtn').addEventListener('click', resetTimer);
+            document.getElementById('skipBtn').addEventListener('click', skipSession);
+
+            // تحديث اسم المهمة
+            taskInput.addEventListener('input', (e) => {
+                const val = e.target.value.trim();
+                currentTaskLabel.textContent = val ? `المادة: ${val}` : "مستعد للبدء؟";
+            });
+
+            // أزرار الأنماط السريعة
+            document.querySelectorAll('.mode-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.mode-btn').forEach(b => {
+                        b.classList.remove('bg-emerald-600', 'text-white', 'shadow-sm');
+                        b.classList.add('text-slate-300');
+                    });
+                    btn.classList.add('bg-emerald-600', 'text-white', 'shadow-sm');
+                    btn.classList.remove('text-slate-300');
+
+                    const w = parseInt(btn.dataset.work, 10);
+                    const b = parseInt(btn.dataset.break, 10);
+
+                    timerState.workMinutes = w;
+                    timerState.breakMinutes = b;
+                    timerState.mode = 'work';
+                    resetTimer();
+                });
+            });
+
+            // نافذة التخصيص
+            const customModal = document.getElementById('customModal');
+            document.getElementById('customModalOpenBtn').addEventListener('click', () => {
+                document.getElementById('customWorkInput').value = timerState.workMinutes;
+                document.getElementById('customBreakInput').value = timerState.breakMinutes;
+                document.getElementById('customGoalInput').value = timerState.dailyGoalHours;
+                customModal.classList.remove('hidden');
+            });
+            document.getElementById('editGoalBtn').addEventListener('click', () => {
+                document.getElementById('customWorkInput').value = timerState.workMinutes;
+                document.getElementById('customBreakInput').value = timerState.breakMinutes;
+                document.getElementById('customGoalInput').value = timerState.dailyGoalHours;
+                customModal.classList.remove('hidden');
+            });
+            document.getElementById('closeModalBtn').addEventListener('click', () => {
+                customModal.classList.add('hidden');
+            });
+
+            // حفظ التخصيص
+            document.getElementById('customTimeForm').addEventListener('submit', (e) => {
+                e.preventDefault();
+                const w = parseInt(document.getElementById('customWorkInput').value, 10);
+                const b = parseInt(document.getElementById('customBreakInput').value, 10);
+                const g = parseFloat(document.getElementById('customGoalInput').value);
+
+                if (w > 0 && b > 0 && g > 0) {
+                    timerState.workMinutes = w;
+                    timerState.breakMinutes = b;
+                    timerState.dailyGoalHours = g;
+
+                    localStorage.setItem('injaz_work_duration', w);
+                    localStorage.setItem('injaz_break_duration', b);
+                    localStorage.setItem('injaz_daily_goal', g);
+
+                    customModal.classList.add('hidden');
+                    resetTimer();
+                    updateStatsUI();
+                }
+            });
+
+            // زر مسح بيانات اليوم
+            document.getElementById('clearTodayDataBtn').addEventListener('click', () => {
+                const history = getStudyHistory();
+                const todayKey = getTodayDateKey();
+                if (history[todayKey]) {
+                    history[todayKey] = { totalMinutes: 0, sessions: [] };
+                    localStorage.setItem('injaz_study_history', JSON.stringify(history));
+                    updateStatsUI();
+                }
+            });
+
+            // وضع ملء الشاشة للتركيز
+            document.getElementById('fullscreenBtn').addEventListener('click', () => {
+                if (!document.fullscreenElement) {
+                    document.documentElement.requestFullscreen().catch(err => console.log(err));
+                } else {
+                    if (document.exitFullscreen) document.exitFullscreen();
+                }
+            });
+
+            // زر الإشعارات
+            document.getElementById('notifyBtn').addEventListener('click', requestNotificationPermission);
+
+            // زر تغيير الثيم (Light / Dark)
+            const themeToggleBtn = document.getElementById('themeToggleBtn');
+            const sunIcon = document.getElementById('themeIconSun');
+            const moonIcon = document.getElementById('themeIconMoon');
+
+            themeToggleBtn.addEventListener('click', () => {
+                const isDark = document.documentElement.classList.toggle('dark');
+                if (isDark) {
+                    document.body.classList.remove('bg-slate-100', 'text-slate-900');
+                    document.body.classList.add('bg-slate-950', 'text-slate-100');
+                    sunIcon.classList.add('hidden');
+                    moonIcon.classList.remove('hidden');
+                } else {
+                    document.body.classList.remove('bg-slate-950', 'text-slate-100');
+                    document.body.classList.add('bg-slate-100', 'text-slate-900');
+                    sunIcon.classList.remove('hidden');
+                    moonIcon.classList.add('hidden');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
